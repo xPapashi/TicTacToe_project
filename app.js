@@ -1,36 +1,30 @@
 const gameBoard = (() => {
-    const gBoardArr = [
-        "X", "X", "O",
-        "O", "O", "X",
-        "X", "O", "X"
-    ];
-    const init = () => {};
-    return {gBoardArr, init};
+  const gBoardArr = ["X", "X", "O", "O", "O", "X", "X", "O", "X"];
+  return { gBoardArr };
 })();
 
-const Player = () => {
+const Player = () => {};
 
+const manageGrid = () => {
+  // const {gBoardArr} = gameBoard;
+  const main = document.querySelector(".main");
+  const grid = document.createElement("div");
+  grid.classList.add("grid");
+
+  const createGrid = (gridArr) => {
+    for (let object in gridArr) {
+      const item = document.createElement(`div`);
+      item.classList.add(`item`);
+      item.innerHTML = gridArr[object];
+      grid.appendChild(item);
+    }
+    main.appendChild(grid);
+  };
+
+  return { createGrid };
 };
 
-const createGrid = () => {
-    const {gBoardArr} = gameBoard;
-    const main = document.querySelector(".main");
-    const grid = document.createElement('div');
-    grid.classList.add('grid');
-
-    for (let object in gBoardArr) {
-        console.log(gBoardArr[object]);
-        const item = document.createElement(`div`);
-        item.classList.add(`item`);
-        item.innerHTML = gBoardArr[object];
-        grid.appendChild(item);
-
-    }
-
-    console.log(gBoardArr);
-    
-
-    main.appendChild(grid);
-}
-
-createGrid();
+const displayController = (() => {
+  const game = manageGrid();
+  game.createGrid(gameBoard.gBoardArr);
+})();
