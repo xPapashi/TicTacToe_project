@@ -1,6 +1,6 @@
 const gameBoard = (() => {
-  const gBoardArr = ["X", "", "", "", "O", "X", "X", "O", "X"];
-  //   const gBoardArr = ["", "", "", "", "", "", "", "", ""];
+  // const gBoardArr = ["X", "X", "O", "X", "O", "X", "X", "O", "X"];
+  const gBoardArr = ["", "", "", "", "", "", "", "", ""];
   const main = document.querySelector(".main");
   const grid = document.createElement("div");
   const warning = document.createElement("div");
@@ -53,9 +53,65 @@ const gameBoard = (() => {
 })();
 
 const Player = (status) => {
+  const checkForWinner = () => {
+    const { gBoardArr } = gameBoard;
+
+    //Check for rows horizontally
+    for (let row = 0; row < 9; row += 3) {
+      if (
+        gBoardArr[row] !== "" &&
+        gBoardArr[row] === gBoardArr[row + 1] &&
+        gBoardArr[row] === gBoardArr[row + 2]
+      ) {
+        gameBoard.displayMessage(`${gBoardArr[row]} wins!`, false);
+        return;
+      }
+    }
+
+    //Check columns vertically
+    for (let col = 0; col < 9; col += 1) {
+      if (
+        gBoardArr[col] !== "" &&
+        gBoardArr[col] === gBoardArr[col + 3] &&
+        gBoardArr[col + 6]
+      ) {
+        gameBoard.displayMessage(`${gBoardArr[col]} wins!`, false);
+        return;
+      }
+    }
+
+    //Check rows + columns diagonally
+    if (
+      gBoardArr[0] !== "" &&
+      gBoardArr[0] === gBoardArr[4] &&
+      gBoardArr[0] === gBoardArr[8]
+    ) {
+      gameBoard.displayMessage(`${gBoardArr[0]} wins!`, false);
+      return;
+    }
+
+    if (
+      gBoardArr[2] !== "" &&
+      gBoardArr[2] === gBoardArr[4] &&
+      gBoardArr[2] === gBoardArr[6]
+    ) {
+      gameBoard.displayMessage(`${gBoardArr[2]} wins!`, false);
+      return;
+    }
+
+    if (!gBoardArr.includes("")) {
+      gameBoard.displayMessage(`Draw`, false);
+    }
+  };
+
+  const updateGameState = () => {
+    checkForWinner();
+  };
+
   const itemsEventListener = () => {
     const start = () => {
       const item = document.querySelectorAll(".item");
+      status = status ? "X" : "O";
 
       item.forEach((element) => {
         element.addEventListener("click", () => {
@@ -63,8 +119,9 @@ const Player = (status) => {
           if (gameBoard.isEmptyArray(index)) {
             element.innerHTML = status;
             gameBoard.addToArray(index, status);
+            updateGameState();
           } else {
-            gameBoard.displayMessage(`This field is already occupied!`, 1);
+            gameBoard.displayMessage(`This field is already occupied!`, true);
           }
         });
       });
@@ -79,6 +136,6 @@ const game = (() => {
   gameBoard.manageGrid().createGrid(gameBoard.gBoardArr);
 
   //Create Player
-  const player = Player("X");
+  const player = Player(1);
   player.itemsEventListener().start();
 })();
