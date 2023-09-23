@@ -1,5 +1,4 @@
 const gameBoard = (() => {
-  // const gBoardArr = ["X", "X", "O", "X", "O", "X", "X", "O", "X"];
   const gBoardArr = ["", "", "", "", "", "", "", "", ""];
   const main = document.querySelector(".main");
   const grid = document.createElement("div");
@@ -52,12 +51,17 @@ const gameBoard = (() => {
   let currentPlayer = null;
   let player1 = null;
   let player2 = null;
+  let isGameOver = false;
+
+  const setGameOver = (status) => {
+    isGameOver = status;
+  }
 
   const initializePlayer = (p1, p2) => {
     player1 = p1;
     player2 = p2;
     currentPlayer = player1;
-  }
+  };
 
   const switchPlayer = () => {
     currentPlayer = currentPlayer === player1 ? player2 : player1;
@@ -69,9 +73,19 @@ const gameBoard = (() => {
     return currentPlayer.itemsEventListener().start();
   };
 
-  return { gBoardArr, manageGrid, addToArray,
-           isEmptyArray, displayMessage, switchPlayer,
-           playerTurn, initializePlayer, player1, player2 };
+  return {
+    gBoardArr,
+    manageGrid,
+    addToArray,
+    isEmptyArray,
+    displayMessage,
+    switchPlayer,
+    playerTurn,
+    initializePlayer,
+    player1,
+    player2,
+    isGameOver,
+  };
 })();
 
 const Player = (status) => {
@@ -86,7 +100,7 @@ const Player = (status) => {
         gBoardArr[row] === gBoardArr[row + 2]
       ) {
         gameBoard.displayMessage(`${gBoardArr[row]} wins!`, false);
-        return;
+        gameBoard.isGameOver = true;
       }
     }
 
@@ -95,10 +109,11 @@ const Player = (status) => {
       if (
         gBoardArr[col] !== "" &&
         gBoardArr[col] === gBoardArr[col + 3] &&
-        gBoardArr[col] ===  gBoardArr[col + 6]
+        gBoardArr[col] === gBoardArr[col + 6]
       ) {
         gameBoard.displayMessage(`${gBoardArr[col]} wins!`, false);
-        return;
+
+        gameBoard.isGameOver = true;
       }
     }
 
@@ -109,7 +124,8 @@ const Player = (status) => {
       gBoardArr[0] === gBoardArr[8]
     ) {
       gameBoard.displayMessage(`${gBoardArr[0]} wins!`, false);
-      return;
+
+      gameBoard.isGameOver = true;
     }
 
     if (
@@ -118,11 +134,14 @@ const Player = (status) => {
       gBoardArr[2] === gBoardArr[6]
     ) {
       gameBoard.displayMessage(`${gBoardArr[2]} wins!`, false);
-      return;
+
+      gameBoard.isGameOver = true;
     }
 
     if (!gBoardArr.includes("")) {
       gameBoard.displayMessage(`Draw`, false);
+
+      gameBoard.isGameOver = true;
     }
   };
 
@@ -143,6 +162,13 @@ const Player = (status) => {
   };
 
   const handleEvent = (event) => {
+    console.log(gameBoard.isGameOver);
+
+    if (gameBoard.isGameOver) {
+      removeEventListener();
+      return;
+    }
+
     if (handleItemClick(event.target, status)) {
       updateGameState();
       removeEventListener();
@@ -157,7 +183,7 @@ const Player = (status) => {
     item.forEach((element) => {
       element.addEventListener("click", handleEvent);
     });
-  }
+  };
 
   const removeEventListener = () => {
     const item = document.querySelectorAll(".item");
@@ -172,7 +198,7 @@ const Player = (status) => {
     };
     const end = () => {
       removeEventListener();
-    }
+    };
     return { start, end };
   };
   return { status, itemsEventListener };
@@ -186,9 +212,9 @@ const game = (() => {
   const p1 = Player("X");
   const p2 = Player("O");
 
-  //Initalize players in gameBoard
+  //Initialize players in gameBoard
   gameBoard.initializePlayer(p1, p2);
 
+  //Allow one of the players to make a turn
   gameBoard.playerTurn();
-  // p1.itemsEventListener().start();
 })();
