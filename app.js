@@ -3,6 +3,7 @@ const gameBoard = (() => {
   const main = document.querySelector(".main");
   const grid = document.createElement("div");
   const warning = document.createElement("div");
+  let isGameOver = false;
 
   const manageGrid = () => {
     grid.classList.add("grid");
@@ -20,7 +21,27 @@ const gameBoard = (() => {
       main.appendChild(warning);
     };
 
-    return { createGrid };
+    const resetGrid = () => {
+      const item = document.querySelectorAll('.item');
+      item.forEach((element) => {
+        element.innerHTML = "";
+      })
+      gBoardArr.forEach((arr, index) => {
+        gBoardArr[index] = "";
+      })
+
+      gameBoard.isGameOver = false;
+
+      const resetBtn = document.querySelector('.btn-reset');
+      if (resetBtn) { resetBtn.remove();}
+
+      displayMessage("", false);
+      console.log(gBoardArr);
+
+      playerTurn();
+    }
+
+    return { createGrid, resetGrid };
   };
 
   const displayMessage = (message, error) => {
@@ -51,11 +72,6 @@ const gameBoard = (() => {
   let currentPlayer = null;
   let player1 = null;
   let player2 = null;
-  let isGameOver = false;
-
-  const setGameOver = (status) => {
-    isGameOver = status;
-  }
 
   const initializePlayer = (p1, p2) => {
     player1 = p1;
@@ -73,6 +89,21 @@ const gameBoard = (() => {
     return currentPlayer.itemsEventListener().start();
   };
 
+  const createResetButton = () => {
+    const button = document.createElement('button');
+    button.classList.add("btn-reset");
+    button.innerHTML = "Reset";
+    main.appendChild(button);
+
+    button.addEventListener("click", () => {
+      manageGrid().resetGrid();
+    })
+  }
+
+  const gameOver = () => {
+    createResetButton();
+  }
+
   return {
     gBoardArr,
     manageGrid,
@@ -82,6 +113,8 @@ const gameBoard = (() => {
     switchPlayer,
     playerTurn,
     initializePlayer,
+    createResetButton,
+    gameOver,
     player1,
     player2,
     isGameOver,
@@ -166,6 +199,7 @@ const Player = (status) => {
 
     if (gameBoard.isGameOver) {
       removeEventListener();
+      gameBoard.gameOver();
       return;
     }
 
