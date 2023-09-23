@@ -49,7 +49,29 @@ const gameBoard = (() => {
     }
   };
 
-  return { gBoardArr, manageGrid, addToArray, isEmptyArray, displayMessage };
+  let currentPlayer = null;
+  let player1 = null;
+  let player2 = null;
+
+  const initializePlayer = (p1, p2) => {
+    player1 = p1;
+    player2 = p2;
+    currentPlayer = player1;
+  }
+
+  const switchPlayer = () => {
+    currentPlayer = currentPlayer === player1 ? player2 : player1;
+  };
+
+  const playerTurn = () => {
+    currentPlayer = currentPlayer === player1 ? player2 : player1;
+
+    return currentPlayer.itemsEventListener().start();
+  };
+
+  return { gBoardArr, manageGrid, addToArray,
+           isEmptyArray, displayMessage, switchPlayer,
+           playerTurn, initializePlayer, player1, player2 };
 })();
 
 const Player = (status) => {
@@ -73,7 +95,7 @@ const Player = (status) => {
       if (
         gBoardArr[col] !== "" &&
         gBoardArr[col] === gBoardArr[col + 3] &&
-        gBoardArr[col + 6]
+        gBoardArr[col] ===  gBoardArr[col + 6]
       ) {
         gameBoard.displayMessage(`${gBoardArr[col]} wins!`, false);
         return;
@@ -104,29 +126,54 @@ const Player = (status) => {
     }
   };
 
+  const handleItemClick = (element) => {
+    const index = element.getAttribute("data-index");
+    const { gBoardArr } = gameBoard;
+    console.log(`Array is  ${gBoardArr}`);
+
+    if (gameBoard.isEmptyArray(index)) {
+      element.innerHTML = status;
+      gameBoard.addToArray(index, status);
+      return true;
+    }
+  };
+
   const updateGameState = () => {
     checkForWinner();
   };
 
+  const handleEvent = (event) => {
+    if (handleItemClick(event.target, status)) {
+      updateGameState();
+      removeEventListener();
+      gameBoard.playerTurn();
+    } else {
+      gameBoard.displayMessage(`This field is already occupied!`, true);
+    }
+  };
+
+  const addEventListener = () => {
+    const item = document.querySelectorAll(".item");
+    item.forEach((element) => {
+      element.addEventListener("click", handleEvent);
+    });
+  }
+
+  const removeEventListener = () => {
+    const item = document.querySelectorAll(".item");
+    item.forEach((element) => {
+      element.removeEventListener("click", handleEvent);
+    });
+  };
+
   const itemsEventListener = () => {
     const start = () => {
-      const item = document.querySelectorAll(".item");
-      status = status ? "X" : "O";
-
-      item.forEach((element) => {
-        element.addEventListener("click", () => {
-          const index = element.getAttribute("data-index");
-          if (gameBoard.isEmptyArray(index)) {
-            element.innerHTML = status;
-            gameBoard.addToArray(index, status);
-            updateGameState();
-          } else {
-            gameBoard.displayMessage(`This field is already occupied!`, true);
-          }
-        });
-      });
+      addEventListener();
     };
-    return { start };
+    const end = () => {
+      removeEventListener();
+    }
+    return { start, end };
   };
   return { status, itemsEventListener };
 };
@@ -136,6 +183,12 @@ const game = (() => {
   gameBoard.manageGrid().createGrid(gameBoard.gBoardArr);
 
   //Create Player
-  const player = Player(1);
-  player.itemsEventListener().start();
+  const p1 = Player("X");
+  const p2 = Player("O");
+
+  //Initalize players in gameBoard
+  gameBoard.initializePlayer(p1, p2);
+
+  gameBoard.playerTurn();
+  // p1.itemsEventListener().start();
 })();
