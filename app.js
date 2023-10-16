@@ -22,24 +22,26 @@ const gameBoard = (() => {
     };
 
     const resetGrid = () => {
-      const item = document.querySelectorAll('.item');
+      const item = document.querySelectorAll(".item");
       item.forEach((element) => {
         element.innerHTML = "";
-      })
+      });
       gBoardArr.forEach((arr, index) => {
         gBoardArr[index] = "";
-      })
+      });
 
       gameBoard.isGameOver = false;
 
-      const resetBtn = document.querySelector('.btn-reset');
-      if (resetBtn) { resetBtn.remove();}
+      const resetBtn = document.querySelector(".btn-reset");
+      if (resetBtn) {
+        resetBtn.remove();
+      }
 
       displayMessage("", false);
       console.log(gBoardArr);
 
       playerTurn();
-    }
+    };
 
     return { createGrid, resetGrid };
   };
@@ -65,7 +67,7 @@ const gameBoard = (() => {
   const addToArray = (index, value) => {
     if (isEmptyArray(index)) {
       gBoardArr.splice(index, 1, value);
-      displayMessage(`Added ${value} to the index of ${index} in array!`, 0);
+      // displayMessage(`Added ${value} to the index of ${index} in array!`, 0);
     }
   };
 
@@ -76,11 +78,12 @@ const gameBoard = (() => {
   const initializePlayer = (p1, p2) => {
     player1 = p1;
     player2 = p2;
-    currentPlayer = player1;
+    currentPlayer = randomPlayer();
   };
 
-  const switchPlayer = () => {
-    currentPlayer = currentPlayer === player1 ? player2 : player1;
+  const randomPlayer = () => {
+    currentPlayer = Math.random() < 0.5 ? player1 : player2;
+    return currentPlayer;
   };
 
   const playerTurn = () => {
@@ -90,19 +93,19 @@ const gameBoard = (() => {
   };
 
   const createResetButton = () => {
-    const button = document.createElement('button');
+    const button = document.createElement("button");
     button.classList.add("btn-reset");
     button.innerHTML = "Reset";
     main.appendChild(button);
 
     button.addEventListener("click", () => {
       manageGrid().resetGrid();
-    })
-  }
+    });
+  };
 
   const gameOver = () => {
     createResetButton();
-  }
+  };
 
   return {
     gBoardArr,
@@ -110,9 +113,9 @@ const gameBoard = (() => {
     addToArray,
     isEmptyArray,
     displayMessage,
-    switchPlayer,
     playerTurn,
     initializePlayer,
+    randomPlayer,
     createResetButton,
     gameOver,
     player1,
@@ -192,6 +195,10 @@ const Player = (status) => {
 
   const updateGameState = () => {
     checkForWinner();
+    if (gameBoard.isGameOver) {
+      removeEventListener();
+      gameBoard.gameOver();
+    }
   };
 
   const handleEvent = (event) => {
@@ -199,7 +206,6 @@ const Player = (status) => {
 
     if (gameBoard.isGameOver) {
       removeEventListener();
-      gameBoard.gameOver();
       return;
     }
 
